@@ -13,8 +13,8 @@ import torch
 import torch.distributed as dist
 from fairseq import utils
 
-from data import data_utils
-from tasks.nlg_tasks.gigaword import fix_tokenization
+from OFA.data import data_utils
+from OFA.tasks.nlg_tasks.gigaword import fix_tokenization
 import editdistance
 
 

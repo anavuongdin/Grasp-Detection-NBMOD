@@ -7,8 +7,6 @@ import numpy
 from diffusers import StableDiffusionPipeline
 import torch
 
-import sys
-sys.path.append('./')
 from fairseq import utils, tasks
 from fairseq import checkpoint_utils
 from OFA.utils.eval_utils import eval_step

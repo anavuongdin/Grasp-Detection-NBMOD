@@ -9,8 +9,8 @@ import torch
 
 from fairseq import utils, tasks
 from fairseq import checkpoint_utils
-from utils.eval_utils import eval_step
-from tasks.mm_tasks.refcoco import RefcocoTask
+from OFA.utils.eval_utils import eval_step
+from OFA.tasks.mm_tasks.refcoco import RefcocoTask
 from OFA.models.ofa import OFAModel
 from PIL import Image
 
@@ -21,13 +21,6 @@ import torchvision
 from PIL import Image
 
 from grasp_detect_multibox import *
-
-from fairseq import utils, tasks
-from fairseq import checkpoint_utils
-from utils.eval_utils import eval_step
-from tasks.mm_tasks.refcoco import RefcocoTask
-from models.ofa import OFAModel
-from PIL import Image
 from matplotlib import cm
 
 import sys

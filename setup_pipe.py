@@ -222,15 +222,13 @@ def generate_a_sample(prompt, query, fn):
     img = torch.from_numpy(result).permute(2, 0, 1).float().unsqueeze(0).to(device)
     boxes = inference_multi_image(img, 0.95)
 
+    # Visualize (optional)
+    img = cv2.imread(fn)
+    draw_multi_box(img, boxes.data)
     img = draw_multi_box(img, boxes.data)
     cv2.imwrite(fn, img)
-
+    
     return boxes
-
-    # Visualize (optional)
-    # img = cv2.imread(fn)
-    # draw_multi_box(img, boxes.data)
-
 
 if __name__ == '__main__':
     generate_a_sample("A keyboard on a desk", "keyboard", "test.png")

@@ -231,5 +231,11 @@ def generate_a_sample(prompt, query, fn):
     return boxes
 
 if __name__ == '__main__':
-    generate_a_sample("A keyboard on a desk", "keyboard", "test.png")
-    print("Done")
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("text")
+    parser.add_argument("query")
+    parser.add_argument("fn")
+    args = parser.parse_args()
+
+    generate_a_sample(args.text, args.query, args.fn)

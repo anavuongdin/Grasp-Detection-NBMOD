@@ -139,3 +139,5 @@ def apply_half(t):
 width = 416
 height = 416
 dim = (width, height)
+
+print("Successfully loaded!")

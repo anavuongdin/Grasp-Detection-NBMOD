@@ -215,7 +215,7 @@ class OFATask(FairseqTask):
             # SequenceGenerator,
             SequenceGeneratorWithAlignment,
         )
-        from models.sequence_generator import SequenceGenerator
+        from OFA.models.sequence_generator import SequenceGenerator
 
         # Choose search strategy. Defaults to Beam Search.
         sampling = getattr(args, "sampling", False)

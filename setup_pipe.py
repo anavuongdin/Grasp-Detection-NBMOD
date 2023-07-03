@@ -29,12 +29,12 @@ sys.path.append("..")
 from segment_anything import sam_model_registry, SamPredictor
 
 
-# Setup Stable Diffusion
+# Step 1: Setup Stable Diffusion
 model_id = "runwayml/stable-diffusion-v1-5"
 pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
 pipe = pipe.to("cuda")
 
-# Setup SAM
+# Step 2: Setup SAM
 sam_checkpoint = "sam_vit_h_4b8939.pth"
 model_type = "vit_h"
 
@@ -45,7 +45,7 @@ sam.to(device=device)
 
 predictor = SamPredictor(sam)
 
-# Setup OFA
+# Step 3: Setup OFA
 # Register refcoco task
 tasks.register_task('refcoco', RefcocoTask)
 
@@ -146,5 +146,29 @@ def apply_half(t):
 width = 416
 height = 416
 dim = (width, height)
+
+# Step 4: Setup Grasp Generator
+def draw_multi_box(img, box_coordinates):
+    point_color1 = (255, 255, 0)  # BGR
+    point_color2 = (255, 0, 255)  # BGR
+    thickness = 2
+    lineType = 4
+    for i in range(box_coordinates.shape[0]):
+        center = (box_coordinates[i, 1].item(), box_coordinates[i, 2].item())
+        size = (box_coordinates[i, 3].item(), box_coordinates[i, 4].item())
+        angle = box_coordinates[i, 5].item()
+        box = cv2.boxPoints((center, size, angle))
+        box = np.int64(box)
+        cv2.line(img, box[0], box[3], point_color1, thickness, lineType)
+        cv2.line(img, box[3], box[2], point_color2, thickness, lineType)
+        cv2.line(img, box[2], box[1], point_color1, thickness, lineType)
+        cv2.line(img, box[1], box[0], point_color2, thickness, lineType)
+
+transform = torchvision.transforms.Compose([
+    transforms.ToTensor(),
+])
+ragt_weights_path = 'pretrained_weights/RAGT-3-3.pth'
+inference_multi_image = DetectMultiImage(device=device, weights_path=ragt_weights_path)
+
 
 print("Successfully loaded!")

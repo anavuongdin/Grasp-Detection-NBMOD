@@ -13,9 +13,9 @@ import Levenshtein
 from fairseq import metrics, utils
 from fairseq.tasks import register_task
 
-from tasks.ofa_task import OFATask, OFAConfig
-from data.mm_data.ocr_dataset import OcrDataset
-from data.file_dataset import FileDataset
+from OFA.tasks.ofa_task import OFATask, OFAConfig
+from OFA.data.mm_data.ocr_dataset import OcrDataset
+from OFA.data.file_dataset import FileDataset
 
 EVAL_BLEU_ORDER = 4
 

@@ -11,17 +11,17 @@ import math
 import pickle
 from typing import Optional
 from argparse import Namespace
-from data.file_dataset import FileDataset
+from OFA.data.file_dataset import FileDataset
 
 import torch
 from fairseq import metrics
 from fairseq.tasks import register_task
 
-from models import search
-from data.mm_data.vqa_gen_dataset import VqaGenDataset
-from data import data_utils
-from tasks.ofa_task import OFAConfig, OFATask
-from utils.trie import Trie
+from OFA.models import search
+from OFA.data.mm_data.vqa_gen_dataset import VqaGenDataset
+from OFA.data import data_utils
+from OFA.tasks.ofa_task import OFAConfig, OFATask
+from OFA.utils.trie import Trie
 
 logger = logging.getLogger(__name__)
 

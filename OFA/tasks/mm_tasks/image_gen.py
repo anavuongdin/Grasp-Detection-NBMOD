@@ -22,12 +22,12 @@ from fairseq import metrics
 from fairseq.tasks import register_task
 from fairseq.dataclass import ChoiceEnum
 
-from models import search, clip
-from models.taming.models.vqgan import GumbelVQ
-from data.mm_data.image_gen_dataset import ImageGenDataset
-from data.file_dataset import FileDataset
+from OFA.models import search, clip
+from OFA.models.taming.models.vqgan import GumbelVQ
+from OFA.data.mm_data.image_gen_dataset import ImageGenDataset
+from OFA.data.file_dataset import FileDataset
 
-from tasks.ofa_task import OFATask, OFAConfig
+from OFA.tasks.ofa_task import OFATask, OFAConfig
 
 logger = logging.getLogger(__name__)
 

@@ -9,8 +9,8 @@ import torch
 
 from fairseq import utils, tasks
 from fairseq import checkpoint_utils
-from OFA.utils.eval_utils import eval_step
-from OFA.tasks.mm_tasks.refcoco import RefcocoTask
+from utils.eval_utils import eval_step
+from tasks.mm_tasks.refcoco import RefcocoTask
 from OFA.models.ofa import OFAModel
 from PIL import Image
 

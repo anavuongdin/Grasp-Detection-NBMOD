@@ -13,11 +13,11 @@ import torch
 from fairseq import metrics
 from fairseq.tasks import register_task
 
-from tasks.ofa_task import OFAConfig, OFATask
-from data.mm_data.snli_ve_dataset import SnliVeDataset
-from data.file_dataset import FileDataset
-from data import data_utils
-from utils.trie import Trie
+from OFA.tasks.ofa_task import OFAConfig, OFATask
+from OFA.data.mm_data.snli_ve_dataset import SnliVeDataset
+from OFA.data.file_dataset import FileDataset
+from OFA.data import data_utils
+from OFA.utils.trie import Trie
 
 logger = logging.getLogger(__name__)
 

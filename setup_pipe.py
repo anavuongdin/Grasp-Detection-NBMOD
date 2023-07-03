@@ -233,5 +233,5 @@ def generate_a_sample(prompt, query, fn):
 
 
 if __name__ == '__main__':
-    generate_a_sample("A keyboard", "keyboard", "test.png")
+    generate_a_sample("A keyboard on a desk", "keyboard", "test.png")
     print("Done")

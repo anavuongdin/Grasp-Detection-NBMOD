@@ -12,9 +12,9 @@ from typing import Optional
 from fairseq.tasks import register_task
 from fairseq.data import FairseqDataset, iterators
 
-from tasks.ofa_task import OFATask, OFAConfig
-from data.pretrain_data.unify_dataset import UnifyDataset
-from data.file_dataset import FileDataset
+from OFA.tasks.ofa_task import OFATask, OFAConfig
+from OFA.data.pretrain_data.unify_dataset import UnifyDataset
+from OFA.data.file_dataset import FileDataset
 
 logger = logging.getLogger(__name__)
 

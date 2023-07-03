@@ -14,7 +14,7 @@ from fairseq.models import FairseqIncrementalDecoder
 from torch import Tensor
 from fairseq.ngram_repeat_block import NGramRepeatBlock
 
-from data import data_utils
+from OFA.data import data_utils
 
 class SequenceGenerator(nn.Module):
     def __init__(

@@ -11,12 +11,12 @@ import warnings
 import numpy as np
 import torch
 import base64
-import utils.transforms as T
+import OFA.utils.transforms as T
 
 from PIL import Image, ImageFile
 
-from data import data_utils
-from data.ofa_dataset import OFADataset
+from OFA.data import data_utils
+from OFA.data.ofa_dataset import OFADataset
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 ImageFile.MAX_IMAGE_PIXELS = None

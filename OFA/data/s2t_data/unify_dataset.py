@@ -34,7 +34,7 @@ import librosa
 from typing import List
 
 from pypinyin import pinyin, Style
-from utils.text2phone import Text2Phone
+from OFA.utils.text2phone import Text2Phone
 from g2p_en import G2p
 g2p = G2p()
 

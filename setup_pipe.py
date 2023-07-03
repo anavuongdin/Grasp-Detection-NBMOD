@@ -172,3 +172,61 @@ inference_multi_image = DetectMultiImage(device=device, weights_path=ragt_weight
 
 
 print("Successfully loaded!")
+
+
+def generate_a_sample(prompt, query, fn):
+    """
+    prompt: str - natural language to describe the synthesized image
+    query: str - object needed to be captured
+    fn: str - name of the sample
+    """
+    # Step 1: Generate the image
+    image = pipe(prompt).images[0]
+    image = np.array(image)
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
+    cv2.imwrite(fn, image)
+
+    # Step 2: Grounding image
+    image = Image.open(fn)
+    sample = construct_sample(image, query)
+    sample = utils.move_to_cuda(sample) if use_cuda else sample
+    sample = utils.apply_to_sample(apply_half, sample) if use_fp16 else sample
+
+    # Run eval step for refcoco
+    with torch.no_grad():
+        result, scores = eval_step(task, generator, models, sample)
+
+    # Step 3: Segmentation
+    input_box = np.array(list(map(int, result[0]["box"])))
+
+    image = np.array(image)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    predictor.set_image(image)
+
+    masks, _, _ = predictor.predict(
+        point_coords=None,
+        point_labels=None,
+        box=input_box[None, :],
+        multimask_output=False,
+    )
+
+    # Step 4: Maskout the image
+    masks = np.squeeze(masks).astype('uint8')
+    result = cv2.bitwise_and(image, image, mask=masks)
+
+    # Step 5: Defining the grasping pose
+    img = torch.from_numpy(result).permute(2, 0, 1).float().unsqueeze(0).to(device)
+    boxes = inference_multi_image(img, 0.95)
+
+    return boxes
+
+    # Visualize (optional)
+    # img = cv2.imread(fn)
+    # draw_multi_box(img, boxes.data)
+
+
+if __name__ == '__main__':
+    generate_a_sample("A keyboard", "keyboard", "test.png")
+    print("Done")

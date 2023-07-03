@@ -34,7 +34,7 @@ pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float
 pipe = pipe.to("cuda")
 
 # Setup SAM
-sam_checkpoint = "../sam_vit_h_4b8939.pth"
+sam_checkpoint = "sam_vit_h_4b8939.pth"
 model_type = "vit_h"
 
 device = "cuda"

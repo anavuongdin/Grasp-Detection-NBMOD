@@ -14,10 +14,10 @@ from fairseq import metrics
 from fairseq.dataclass import ChoiceEnum
 from fairseq.tasks import register_task
 
-from tasks.ofa_task import OFATask, OFAConfig
-from data.nlu_data.mnli_dataset import MNLIDataset
-from data.file_dataset import FileDataset
-from utils.trie import Trie
+from OFA.tasks.ofa_task import OFATask, OFAConfig
+from OFA.data.nlu_data.mnli_dataset import MNLIDataset
+from OFA.data.file_dataset import FileDataset
+from OFA.utils.trie import Trie
 
 logger = logging.getLogger(__name__)
 

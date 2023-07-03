@@ -2,11 +2,11 @@ import torch
 import torch.nn.functional as F
 import pytorch_lightning as pl
 
-from models.taming.util import instantiate_from_config
+from OFA.models.taming.util import instantiate_from_config
 
-from models.taming.modules.diffusionmodules.model import Encoder, Decoder
-from models.taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
-from models.taming.modules.vqvae.quantize import GumbelQuantize
+from OFA.models.taming.modules.diffusionmodules.model import Encoder, Decoder
+from OFA.models.taming.modules.vqvae.quantize import VectorQuantizer2 as VectorQuantizer
+from OFA.models.taming.modules.vqvae.quantize import GumbelQuantize
 
 class VQModel(pl.LightningModule):
     def __init__(self,

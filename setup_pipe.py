@@ -164,6 +164,7 @@ def draw_multi_box(img, box_coordinates):
         cv2.line(img, box[3], box[2], point_color2, thickness, lineType)
         cv2.line(img, box[2], box[1], point_color1, thickness, lineType)
         cv2.line(img, box[1], box[0], point_color2, thickness, lineType)
+    return img
 
 transform = torchvision.transforms.Compose([
     transforms.ToTensor(),
@@ -220,6 +221,9 @@ def generate_a_sample(prompt, query, fn):
     # Step 5: Defining the grasping pose
     img = torch.from_numpy(result).permute(2, 0, 1).float().unsqueeze(0).to(device)
     boxes = inference_multi_image(img, 0.95)
+
+    img = draw_multi_box(img, boxes.data)
+    cv2.imwrite(fn, img)
 
     return boxes
 

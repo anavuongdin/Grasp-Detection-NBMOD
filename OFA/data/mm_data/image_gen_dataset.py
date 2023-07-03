@@ -15,8 +15,8 @@ import torch
 
 from PIL import Image, ImageFile
 from itertools import chain
-from data.ofa_dataset import OFADataset
-from data import data_utils
+from OFA.data.ofa_dataset import OFADataset
+from OFA.data import data_utils
 
 from PIL import Image
 from io import BytesIO

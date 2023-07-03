@@ -13,9 +13,9 @@ import torch
 from fairseq import metrics
 from fairseq.tasks import register_task
 
-from tasks.ofa_task import OFATask, OFAConfig
-from data.mm_data.refcoco_dataset import RefcocoDataset
-from data.file_dataset import FileDataset
+from OFA.tasks.ofa_task import OFATask, OFAConfig
+from OFA.data.mm_data.refcoco_dataset import RefcocoDataset
+from OFA.data.file_dataset import FileDataset
 
 logger = logging.getLogger(__name__)
 

@@ -46,6 +46,13 @@ sam.to(device=device)
 predictor = SamPredictor(sam)
 
 # Setup OFA
+# Register refcoco task
+tasks.register_task('refcoco', RefcocoTask)
+
+# turn on cuda if GPU is available
+use_cuda = torch.cuda.is_available()
+# use fp16 only when GPU is available
+use_fp16 = False
 # Load pretrained ckpt & config
 overrides={"bpe_dir":"OFA/utils/BPE"}
 models, cfg, task = checkpoint_utils.load_model_ensemble_and_task(

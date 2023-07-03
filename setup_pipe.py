@@ -7,8 +7,8 @@ import numpy
 from diffusers import StableDiffusionPipeline
 import torch
 
-from fairseq import utils, tasks
-from fairseq import checkpoint_utils
+from ..fairseq import utils, tasks
+from ..fairseq import checkpoint_utils
 from utils.eval_utils import eval_step
 from tasks.mm_tasks.refcoco import RefcocoTask
 from models.ofa import OFAModel

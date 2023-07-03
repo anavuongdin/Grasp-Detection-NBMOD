@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import cv2
 import numpy
 
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
 import torch
 from torchvision import transforms
 
@@ -30,8 +30,9 @@ from segment_anything import sam_model_registry, SamPredictor
 
 
 # Step 1: Setup Stable Diffusion
-model_id = "runwayml/stable-diffusion-v1-5"
+model_id = "stabilityai/stable-diffusion-2-1"
 pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 pipe = pipe.to("cuda")
 
 # Step 2: Setup SAM

@@ -8,8 +8,8 @@ import warnings
 import torch
 import numpy as np
 
-from data import data_utils
-from data.ofa_dataset import OFADataset
+from OFA.data import data_utils
+from OFA.data.ofa_dataset import OFADataset
 
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", "(Possibly )?corrupt EXIF data", UserWarning)

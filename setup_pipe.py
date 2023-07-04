@@ -16,6 +16,8 @@ from OFA.models.ofa import OFAModel
 from PIL import Image
 
 from shapely.geometry import Polygon
+from shapely.geometry import LineString, Point
+from shapely.affinity import rotate
 import glob
 from torch import nn
 import torchvision
@@ -176,6 +178,61 @@ inference_multi_image = DetectMultiImage(device=device, weights_path=ragt_weight
 print("Successfully loaded!")
 
 
+def grasp_quality(grasp, convex_boundary):
+  _, x, y, h, w, angle = grasp
+
+  # Define the line segment and rotate the line segment by theta degrees around the given point
+  line = LineString([(x-h/2, y), (x+h/2, y)])
+  rotated_line = rotate(line, angle, origin=(x, y))
+
+  # Get intersection points
+  intersection_points = convex_boundary.intersection(rotated_line)
+  quality = 0
+  points = convex_boundary.exterior.coords
+
+  for point in intersection_points.coords:
+    edge_line = None
+    for i,j in zip(points, points[1:]):
+      if LineString((i,j)).distance(Point(point)) < 0.001:
+          edge_line = LineString((i,j))
+          break
+
+    if edge_line is not None:
+      vector1 = np.array([intersection_points.coords[1][0] - intersection_points.coords[0][0], intersection_points.coords[1][1] - intersection_points.coords[0][1]])
+      vector2 = np.array([edge_line.coords[1][0] - edge_line.coords[0][0], edge_line.coords[1][1] - edge_line.coords[0][1]])
+
+      # Normalize the vectors
+      vector1 /= np.linalg.norm(vector1)
+      vector2 /= np.linalg.norm(vector2)
+
+      # Calculate the dot product of the vectors
+      dot_product = np.dot(vector1, vector2)
+
+      # Calculate the angle in radians
+      angle_rad = np.arccos(dot_product)
+      quality += np.sin(angle_rad)
+
+  return quality
+
+
+def get_best_grasp(masks, boxes):
+  boxes = boxes.detach().cpu()
+  indices = np.argwhere(masks.T == 1)
+  polygon = Polygon(indices.tolist())
+  convex_boundary = polygon.convex_hull
+
+  best_quality = -1
+  best_grasp = None
+  for grasp in boxes:
+    quality = grasp_quality(grasp, convex_boundary)
+
+    if quality > best_quality:
+      best_quality = quality
+      best_grasp = grasp
+
+  return best_grasp
+
+
 def generate_a_sample(prompt, query, fn):
     """
     prompt: str - natural language to describe the synthesized image
@@ -220,15 +277,19 @@ def generate_a_sample(prompt, query, fn):
 
     # Step 5: Defining the grasping pose
     img = torch.from_numpy(result).permute(2, 0, 1).float().unsqueeze(0).to(device)
-    boxes = inference_multi_image(img, 0.95)
+    boxes = inference_multi_image(img, 0.99)
+
+    # Step 6: Get refined grasp
+    best_grasp = get_best_grasp(masks, boxes)
 
     # Visualize (optional)
-    img = cv2.imread(fn)
-    draw_multi_box(img, boxes.data)
-    img = draw_multi_box(img, boxes.data)
-    cv2.imwrite(fn, img)
-    
-    return boxes
+    if best_grasp is not None:
+        img = cv2.imread(fn)
+        draw_multi_box(img, best_grasp.unsqueeze(0))
+        draw_multi_box(img, boxes)
+
+        return best_grasp
+    return None
 
 if __name__ == '__main__':
     import argparse

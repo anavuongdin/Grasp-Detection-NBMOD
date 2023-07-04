@@ -212,6 +212,11 @@ def grasp_quality(grasp, convex_boundary):
       angle_rad = np.arccos(dot_product)
       quality += np.sin(angle_rad)
 
+  # Calculate the distance between the center point
+  center = convex_boundary.centroid
+  distance = center.distance(rotated_line) + 1e-5
+  quality = quality / distance
+
   return quality
 
 
@@ -299,4 +304,4 @@ if __name__ == '__main__':
     parser.add_argument("fn")
     args = parser.parse_args()
 
-    generate_a_sample(args.text, args.query, args.fn)
+    print(generate_a_sample(args.text, args.query, args.fn))

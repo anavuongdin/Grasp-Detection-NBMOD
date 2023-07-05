@@ -7,6 +7,7 @@ import numpy
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
 import torch
 from torchvision import transforms
+import hashlib
 
 from fairseq import utils, tasks
 from fairseq import checkpoint_utils
@@ -247,6 +248,11 @@ def generate_a_sample(prompt, query, fn):
     query: str - object needed to be captured
     fn: str - name of the sample
     """
+    # Step 0: Prepare id for the sample
+    noised_prompt = prompt + str(np.random.random())
+    sample_id = generate_id(noised_prompt)
+    print(sample_id)
+
     # Step 1: Generate the image
     image = pipe(prompt).images[0]
     image = np.array(image)
@@ -298,6 +304,23 @@ def generate_a_sample(prompt, query, fn):
 
         return best_grasp
     return None
+
+
+def generate_id(prompt):
+    # Create a SHA-3-256 hash object
+    sha3_hash = hashlib.sha3_256()
+
+    # Convert the prompt to bytes
+    prompt_bytes = prompt.encode('utf-8')
+
+    # Update the hash object with the prompt bytes
+    sha3_hash.update(prompt_bytes)
+
+    # Get the hexadecimal representation of the hash
+    sample_id = sha3_hash.hexdigest()
+
+    return sample_id
+
 
 if __name__ == '__main__':
     import argparse

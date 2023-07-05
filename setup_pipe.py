@@ -212,6 +212,9 @@ def grasp_quality(grasp, convex_boundary):
       angle_rad = np.arccos(dot_product)
       quality += np.sin(angle_rad)
 
+  if len(intersection_points.coords) < 2:
+    quality = 0
+
   # Calculate the distance between the center point
   center = convex_boundary.centroid
   distance = center.distance(rotated_line) + 1e-5

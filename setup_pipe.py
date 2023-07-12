@@ -3,7 +3,9 @@ import torch
 import matplotlib.pyplot as plt
 import cv2
 import numpy
+import os
 
+from process_prompts import read_prompts
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
 import torch
 from torchvision import transforms
@@ -189,6 +191,7 @@ def grasp_quality(grasp, convex_boundary):
   # Get intersection points
   intersection_points = convex_boundary.intersection(rotated_line)
   quality = 0
+  found = 0
   points = convex_boundary.exterior.coords
 
   for point in intersection_points.coords:
@@ -199,6 +202,7 @@ def grasp_quality(grasp, convex_boundary):
           break
 
     if edge_line is not None:
+      found += 1
       vector1 = np.array([intersection_points.coords[1][0] - intersection_points.coords[0][0], intersection_points.coords[1][1] - intersection_points.coords[0][1]])
       vector2 = np.array([edge_line.coords[1][0] - edge_line.coords[0][0], edge_line.coords[1][1] - edge_line.coords[0][1]])
 
@@ -211,10 +215,12 @@ def grasp_quality(grasp, convex_boundary):
 
       # Calculate the angle in radians
       angle_rad = np.arccos(dot_product)
-      quality += np.sin(angle_rad)
+      quality += np.absolute(np.sin(angle_rad))
 
-  if len(intersection_points.coords) < 2:
+  if found == 1:
     quality = 0
+  elif found == 0:
+    quality = -1
 
   # Calculate the distance between the center point
   center = convex_boundary.centroid
@@ -230,38 +236,57 @@ def get_best_grasp(masks, boxes):
   polygon = Polygon(indices.tolist())
   convex_boundary = polygon.convex_hull
 
-  best_quality = -1
-  best_grasp = None
   for grasp in boxes:
     quality = grasp_quality(grasp, convex_boundary)
-
-    if quality > best_quality:
-      best_quality = quality
-      best_grasp = grasp
-
-  return best_grasp
+    grasp[0] = quality
 
 
-def generate_a_sample(prompt, query, fn):
-    """
-    prompt: str - natural language to describe the synthesized image
-    query: str - object needed to be captured
-    fn: str - name of the sample
-    """
-    # Step 0: Prepare id for the sample
-    noised_prompt = prompt + str(np.random.random())
+  negative_grasps = list(filter(lambda x: x[0] <= 1e-5, boxes))
+  positive_grasps = list(filter(lambda x: x[0] > 0, boxes))
+  positive_grasps = sorted(positive_grasps, key=lambda x: x[0])
+
+  if len(positive_grasps) < 1:
+    return None, None
+  
+  if len(negative_grasps) < 1:
+    negative_grasps = [torch.rand(6)]
+
+  negative_grasps = torch.cat(negative_grasps).reshape(-1, 6)
+  positive_grasps = torch.cat(positive_grasps).reshape(-1, 6)
+
+  return negative_grasps, positive_grasps
+
+
+def generate_a_sample(prompt, queries):
+  """
+  prompt: str - natural language to describe the synthesized image
+  query: list str - object needed to be captured
+  """
+  # Step 1: Generate the image
+  image = pipe(prompt).images[0]
+  # Generate sample id
+  noised_prompt = prompt + str(np.random.random())
+  sample_id = generate_id(noised_prompt)
+
+  image = np.array(image)
+  image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+  image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
+
+  # Setup image handle
+  fn = os.path.join(image_dir, sample_id + '.jpg')
+  cv2.imwrite(fn, image)
+
+  # Step 2: Grounding image
+  image = Image.open(fn)
+  np_image = np.array(image)
+  np_image = cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB)
+  predictor.set_image(np_image)
+
+  for idx, query in enumerate(queries):
+    query_id = sample_id + '_{}'.format(idx) 
+    noised_prompt = prompt + query + str(np.random.random())
     sample_id = generate_id(noised_prompt)
-    print(sample_id)
 
-    # Step 1: Generate the image
-    image = pipe(prompt).images[0]
-    image = np.array(image)
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
-    cv2.imwrite(fn, image)
-
-    # Step 2: Grounding image
-    image = Image.open(fn)
     sample = construct_sample(image, query)
     sample = utils.move_to_cuda(sample) if use_cuda else sample
     sample = utils.apply_to_sample(apply_half, sample) if use_fp16 else sample
@@ -272,12 +297,6 @@ def generate_a_sample(prompt, query, fn):
 
     # Step 3: Segmentation
     input_box = np.array(list(map(int, result[0]["box"])))
-
-    image = np.array(image)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    predictor.set_image(image)
-
     masks, _, _ = predictor.predict(
         point_coords=None,
         point_labels=None,
@@ -287,23 +306,33 @@ def generate_a_sample(prompt, query, fn):
 
     # Step 4: Maskout the image
     masks = np.squeeze(masks).astype('uint8')
-    result = cv2.bitwise_and(image, image, mask=masks)
+    result = cv2.bitwise_and(np_image, np_image, mask=masks)
 
     # Step 5: Defining the grasping pose
     img = torch.from_numpy(result).permute(2, 0, 1).float().unsqueeze(0).to(device)
     boxes = inference_multi_image(img, 0.99)
 
     # Step 6: Get refined grasp
-    best_grasp = get_best_grasp(masks, boxes)
+    negative_grasps, positive_grasps = get_best_grasp(masks, boxes)
 
-    # Visualize (optional)
-    if best_grasp is not None:
-        img = cv2.imread(fn)
-        draw_multi_box(img, best_grasp.unsqueeze(0))
-        draw_multi_box(img, boxes)
+    if positive_grasps is None:
+        return None
 
-        return best_grasp
-    return None
+    # Setup handle for grasp file
+    neg_grasp_fn = os.path.join(neg_grasp_dir, query_id + '.pt')
+    pos_grasp_fn = os.path.join(pos_grasp_dir, query_id + '.pt')
+    torch.save(negative_grasps, neg_grasp_fn)
+    torch.save(positive_grasps, pos_grasp_fn)
+
+#   best_grasp = positive_grasps[-1]
+
+  # Visualize (optional)
+  # if best_grasp is not None:
+  #   img = cv2.imread(fn)
+  #   draw_multi_box(img, best_grasp.unsqueeze(0))
+  #   draw_multi_box(img, boxes)
+
+  return sample_id
 
 
 def generate_id(prompt):
@@ -324,10 +353,29 @@ def generate_id(prompt):
 
 if __name__ == '__main__':
     import argparse
+    global image_dir
+    global grasp_dir
     parser = argparse.ArgumentParser()
-    parser.add_argument("text")
-    parser.add_argument("query")
-    parser.add_argument("fn")
+    parser.add_argument("prompt_file", type=str,
+                        help="path to prompt file")
+    parser.add_argument("save_dir", type=str,
+                        help="path to save dir")
     args = parser.parse_args()
 
-    print(generate_a_sample(args.text, args.query, args.fn))
+    image_dir = os.path.join(args.save_dir, 'image')
+
+    if not os.path.exists(args.save_dir):
+       os.makedirs(args.save_dir)
+
+    neg_grasp_dir = os.path.join(args.save_dir, 'negative_grasp')
+    pos_grasp_dir = os.path.join(args.save_dir, 'positive_grasp')
+
+    if not os.path.exists(neg_grasp_dir):
+       os.makedirs(neg_grasp_dir)
+    
+    if not os.path.exists(pos_grasp_dir):
+       os.makedirs(pos_grasp_dir)
+
+    print(args.prompt_file, neg_grasp_dir, pos_grasp_dir)
+    for prompt, queries in read_prompts(args.prompt_file):
+       generate_a_sample(prompt)

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import cv2
 import numpy
 import os
+import pickle
 
 from process_prompts import read_prompts
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
@@ -276,6 +277,11 @@ def generate_a_sample(prompt, queries):
   fn = os.path.join(image_dir, sample_id + '.jpg')
   cv2.imwrite(fn, image)
 
+  # Setup prompt and queries handle
+  prompt_fn = os.path.join(prompt_dir, sample_id + '.pkl')
+  with open(prompt_fn, 'wb') as f:
+     pickle.dump((prompt, queries), f)
+
   # Step 2: Grounding image
   image = Image.open(fn)
   np_image = np.array(image)
@@ -354,7 +360,10 @@ def generate_id(prompt):
 if __name__ == '__main__':
     import argparse
     global image_dir
-    global grasp_dir
+    global prompt_dir
+    global neg_grasp_dir
+    global pos_grasp_dir
+
     parser = argparse.ArgumentParser()
     parser.add_argument("prompt_file", type=str,
                         help="path to prompt file")
@@ -362,13 +371,20 @@ if __name__ == '__main__':
                         help="path to save dir")
     args = parser.parse_args()
 
-    image_dir = os.path.join(args.save_dir, 'image')
-
     if not os.path.exists(args.save_dir):
        os.makedirs(args.save_dir)
 
+    # Setup dir
+    prompt_dir = os.path.join(args.save_dir, 'prompt')
+    image_dir = os.path.join(args.save_dir, 'image')
     neg_grasp_dir = os.path.join(args.save_dir, 'negative_grasp')
     pos_grasp_dir = os.path.join(args.save_dir, 'positive_grasp')
+
+    if not os.path.exists(prompt_dir):
+       os.makedirs(prompt_dir)
+
+    if not os.path.exists(image_dir):
+       os.makedirs(image_dir)
 
     if not os.path.exists(neg_grasp_dir):
        os.makedirs(neg_grasp_dir)
@@ -377,5 +393,5 @@ if __name__ == '__main__':
        os.makedirs(pos_grasp_dir)
 
     print(args.prompt_file, neg_grasp_dir, pos_grasp_dir)
-    for prompt, queries in read_prompts(args.prompt_file):
+    for prompt, queries in read_prompts(args.prompt_file)[:10]:
        generate_a_sample(prompt)

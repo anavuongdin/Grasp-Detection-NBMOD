@@ -244,7 +244,7 @@ def get_best_grasp(masks, boxes):
 
   negative_grasps = list(filter(lambda x: x[0] <= 1e-5, boxes))
   positive_grasps = list(filter(lambda x: x[0] > 0, boxes))
-  positive_grasps = sorted(positive_grasps, key=lambda x: x[0])
+  positive_grasps = sorted(positive_grasps, key=lambda x: x[0], reverse=True)
 
   if len(positive_grasps) < 1:
     return None, None

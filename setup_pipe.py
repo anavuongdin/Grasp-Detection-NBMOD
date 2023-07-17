@@ -312,6 +312,12 @@ def generate_a_sample(prompt, queries):
 
     # Step 4: Maskout the image
     masks = np.squeeze(masks).astype('uint8')
+
+    # Setup handle for mask file
+    mask_fn = os.path.join(mask_dir, query_id + '.npy')
+    with open(mask_fn, 'wb') as f:
+       np.save(f, masks)
+       
     result = cv2.bitwise_and(np_image, np_image, mask=masks)
 
     # Step 5: Defining the grasping pose
@@ -363,6 +369,7 @@ if __name__ == '__main__':
     global prompt_dir
     global neg_grasp_dir
     global pos_grasp_dir
+    global mask_dir
 
     parser = argparse.ArgumentParser()
     parser.add_argument("prompt_file", type=str,
@@ -379,6 +386,7 @@ if __name__ == '__main__':
     image_dir = os.path.join(args.save_dir, 'image')
     neg_grasp_dir = os.path.join(args.save_dir, 'negative_grasp')
     pos_grasp_dir = os.path.join(args.save_dir, 'positive_grasp')
+    mask_dir = os.path.join(args.save_dir, 'mask')
 
     if not os.path.exists(prompt_dir):
        os.makedirs(prompt_dir)
@@ -391,6 +399,9 @@ if __name__ == '__main__':
     
     if not os.path.exists(pos_grasp_dir):
        os.makedirs(pos_grasp_dir)
+    
+    if not os.path.exists(mask_dir):
+       os.makedirs(mask_dir)
 
     print(args.prompt_file, neg_grasp_dir, pos_grasp_dir)
     for prompt, queries in read_prompts(args.prompt_file):

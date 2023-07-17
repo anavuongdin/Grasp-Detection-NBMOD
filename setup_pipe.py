@@ -393,5 +393,5 @@ if __name__ == '__main__':
        os.makedirs(pos_grasp_dir)
 
     print(args.prompt_file, neg_grasp_dir, pos_grasp_dir)
-    for prompt, queries in read_prompts(args.prompt_file)[:10]:
+    for prompt, queries in read_prompts(args.prompt_file):
        generate_a_sample(prompt, queries)

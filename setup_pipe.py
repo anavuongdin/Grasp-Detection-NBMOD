@@ -39,6 +39,7 @@ from segment_anything import sam_model_registry, SamPredictor
 model_id = "stabilityai/stable-diffusion-2-1"
 pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
 pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+pipe.safety_checker = lambda images, **kwargs: (images, [False] * len(images))
 pipe = pipe.to("cuda")
 
 # Step 2: Setup SAM

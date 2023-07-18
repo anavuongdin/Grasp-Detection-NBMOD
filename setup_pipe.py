@@ -292,7 +292,6 @@ def generate_a_sample(prompt, queries):
   for idx, query in enumerate(queries):
     query_id = sample_id + '_{}'.format(idx) 
     noised_prompt = prompt + query + str(np.random.random())
-    sample_id = generate_id(noised_prompt)
 
     sample = construct_sample(image, query)
     sample = utils.move_to_cuda(sample) if use_cuda else sample

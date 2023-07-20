@@ -405,4 +405,9 @@ if __name__ == '__main__':
 
     print(args.prompt_file, neg_grasp_dir, pos_grasp_dir)
     for prompt, queries in read_prompts(args.prompt_file):
-       generate_a_sample(prompt, queries)
+        try:
+            generate_a_sample(prompt, queries)
+        except:
+           with open("log.txt", 'a+') as f:
+              f.write("Error occurred at prompt: {}".format(prompt))
+        

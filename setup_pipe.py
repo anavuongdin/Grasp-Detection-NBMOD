@@ -416,7 +416,7 @@ if __name__ == '__main__':
     
 
     print("The total length is: {}".format(length))
-    for prompt, queries in tqdm(read_prompts(args.prompt_file), total=length):
+    for prompt, queries in tqdm.tqdm(read_prompts(args.prompt_file), total=length):
         try:
             generate_a_sample(prompt, queries)
         except:

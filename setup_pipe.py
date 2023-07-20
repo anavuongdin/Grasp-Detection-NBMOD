@@ -5,6 +5,7 @@ import cv2
 import numpy
 import os
 import pickle
+import tqdm
 
 from process_prompts import read_prompts
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
@@ -40,6 +41,11 @@ model_id = "stabilityai/stable-diffusion-2-1"
 pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
 pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 pipe.safety_checker = lambda images, **kwargs: (images, [False] * len(images))
+# if one wants to set `leave=False`
+pipe.set_progress_bar_config(leave=False)
+
+# if one wants to disable `tqdm`
+pipe.set_progress_bar_config(disable=True)
 pipe = pipe.to("cuda")
 
 # Step 2: Setup SAM
@@ -403,8 +409,14 @@ if __name__ == '__main__':
     if not os.path.exists(mask_dir):
        os.makedirs(mask_dir)
 
-    print(args.prompt_file, neg_grasp_dir, pos_grasp_dir)
+    length = 0
+
     for prompt, queries in read_prompts(args.prompt_file):
+       length += 1
+    
+
+    print("The total length is: {}".format(length))
+    for prompt, queries in tqdm(read_prompts(args.prompt_file), total=length):
         try:
             generate_a_sample(prompt, queries)
         except:

@@ -25,6 +25,7 @@ while True:
     for new_file in new_files:
         batch_number = new_file.split('.')[0].split('_')[-1]
         # Execute the bash script with the specified batch number
+        print("Running: ", bash_script, batch_number)
         subprocess.run(['bash', bash_script, batch_number])
 
     # Wait for a specified time before checking again (e.g., 5 seconds)

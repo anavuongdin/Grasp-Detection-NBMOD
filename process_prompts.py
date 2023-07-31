@@ -7,10 +7,7 @@ def read_prompts(file_name):
         x = x.strip('\n')
 
     for line in x.split('\n'):
-        try:
-            prompt, queries = line.split('.')
-        except:
-            print(line)
+        prompt, queries = line.split('.')
         queries = queries.strip(' []')
         queries = queries.split(' ')
         queries = list(map(lambda x: x.strip(','), queries))

@@ -1,7 +1,13 @@
 #!/bin/bash
 
-# Read the input from the user and store it in the variable "INPUT_BATCH"
-read -p "Enter the batch number (e.g., 7): " INPUT_BATCH
+# Check if the batch number is provided as a command-line argument
+if [ -z "$1" ]; then
+    echo "Usage: $0 <batch_number>"
+    exit 1
+fi
+
+# Get the batch number from the command-line argument
+INPUT_BATCH="$1"
 
 # Replace occurrences of "batch_7" with the user input stored in "INPUT_BATCH"
 CMD1="rm -rf data/grasp-anything-backup/"

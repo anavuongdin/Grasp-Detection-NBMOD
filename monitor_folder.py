@@ -11,9 +11,6 @@ bash_script = '/LOCAL2/anguyen/faic/vdan/grasping/Grasp-Detection-NBMOD/run.sh'
 # Set a list to keep track of the files in the folder
 files_in_folder = os.listdir(folder_path)
 
-# Replace 'batch_number' with the desired batch number for the 'run.sh' script
-batch_number = 8
-
 while True:
     # Get the list of files in the folder
     files = os.listdir(folder_path)
@@ -26,9 +23,9 @@ while True:
 
     # If new files are found, execute the bash script for each new file
     for new_file in new_files:
+        batch_number = new_file.split('.')[0].split('_')[-1]
         # Execute the bash script with the specified batch number
-        subprocess.run(['bash', bash_script, str(batch_number)])
+        subprocess.run(['bash', bash_script, batch_number])
 
-    batch_number += 1
     # Wait for a specified time before checking again (e.g., 5 seconds)
     time.sleep(5)

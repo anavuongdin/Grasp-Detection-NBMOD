@@ -17,8 +17,8 @@ CMD4="mv grasp-anything-backup/ data/"
 CMD5="python setup_pipe.py data/batch_${INPUT_BATCH}.pkl ../robotic-grasping/data/grasp-anything/"
 
 # Execute the commands
-$CMD1
+# $CMD1
 $CMD2
-$CMD3
-$CMD4
+# $CMD3
+# $CMD4
 $CMD5

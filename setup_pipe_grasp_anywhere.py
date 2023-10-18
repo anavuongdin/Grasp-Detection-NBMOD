@@ -310,6 +310,7 @@ def generate_a_sample(idx):
             pos_grasp_fn = os.path.join(pos_grasp_dir, part_id + '.pt')
             torch.save(negative_grasps, neg_grasp_fn)
             torch.save(positive_grasps, pos_grasp_fn)
+            print("Successfully saved {}".format(part_id))
        except:
           pass
 
@@ -327,8 +328,6 @@ if __name__ == '__main__':
     global mask_dir
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("prompt_file", type=str,
-                        help="path to prompt file")
     parser.add_argument("save_dir", type=str,
                         help="path to save dir")
     parser.add_argument("input_dir", type=str,

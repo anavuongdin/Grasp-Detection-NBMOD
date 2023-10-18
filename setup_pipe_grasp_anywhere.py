@@ -282,7 +282,7 @@ def generate_a_sample(idx):
   prompt_fn = os.path.join(prompt_dir, idx + '.pkl')
   with open(prompt_fn, 'rb') as f:
      prompt, queries = pickle.load(f)
-
+  print(queries)
   for i, query in enumerate(queries):
     query_id = idx + '_{}'.format(i) 
 

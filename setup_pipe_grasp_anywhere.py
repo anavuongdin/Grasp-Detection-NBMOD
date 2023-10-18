@@ -274,15 +274,15 @@ def generate_a_sample(idx):
   image_fn = os.path.join(image_dir, idx + '.jpg')
   image = Image.open(image_fn)
   np_image = np.array(image)
-  image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-  image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
+  np_image = cv2.cvtColor(np_image, cv2.COLOR_RGB2BGR)
+  np_image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
 
 
   # Setup prompt and queries handle
   prompt_fn = os.path.join(prompt_dir, idx + '.pkl')
   with open(prompt_fn, 'rb') as f:
      prompt, queries = pickle.load(f)
-  print(queries)
+
   for i, query in enumerate(queries):
     query_id = idx + '_{}'.format(i) 
 

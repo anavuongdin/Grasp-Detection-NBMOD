@@ -362,9 +362,9 @@ if __name__ == '__main__':
     length = len(idxs)
     print("The total length is: {}".format(length))
     for idx in tqdm.tqdm(idxs, total=length):
-        try:
+        # try:
             generate_a_sample(idx)
-        except:
-           with open("log.txt", 'a+') as f:
-              f.write("Error occurred at prompt: {}".format(idx))
+        # except:
+        #    with open("log.txt", 'a+') as f:
+        #       f.write("Error occurred at prompt: {}".format(idx))
         

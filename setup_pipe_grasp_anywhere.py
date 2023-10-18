@@ -275,7 +275,7 @@ def generate_a_sample(idx):
   image = Image.open(image_fn)
   np_image = np.array(image)
   np_image = cv2.cvtColor(np_image, cv2.COLOR_RGB2BGR)
-  np_image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
+  np_image = cv2.resize(np_image, dim, interpolation = cv2.INTER_AREA)
 
 
   # Setup prompt and queries handle

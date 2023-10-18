@@ -289,7 +289,7 @@ def generate_a_sample(idx):
 
     # Step 4: Maskout the image
     for j in range(3):
-    #    try:
+       try:
             part_id = query_id + '_{}'.format(j)
             masks = np.load(os.path.join(mask_dir, part_id + '.npy'))
             
@@ -310,9 +310,9 @@ def generate_a_sample(idx):
             pos_grasp_fn = os.path.join(pos_grasp_dir, part_id + '.pt')
             torch.save(negative_grasps, neg_grasp_fn)
             torch.save(positive_grasps, pos_grasp_fn)
-            print("Successfully saved {}".format(part_id))
-    #    except:
-    #       pass
+            # print("Successfully saved {}".format(part_id))
+       except:
+          pass
 
 
     return idx
